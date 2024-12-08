@@ -27,7 +27,7 @@
       // vitesse maximale du véhicule
       this.maxSpeed = 6;
       // force maximale appliquée au véhicule
-      this.maxForce = 0.25;
+      this.maxForce = 0.35;
       this.color = "white";
       // à peu près en secondes
       this.dureeDeVie = 5;
@@ -37,7 +37,7 @@
       this.r = this.r_pourDessin * 3;
   
       // Pour évitement d'obstacle
-      this.distanceAhead = 50;
+      this.distanceAhead = 60;
       this.largeurZoneEvitementDevantVaisseau = this.r / 2;
   
       // chemin derrière vaisseaux
@@ -45,7 +45,7 @@
       this.pathMaxLength = 30;
   
       // Paramètres pour separate (on pourra ajouter un curseur)
-      this.distanceSeparation = this.r;
+      this.distanceSeparation = this.r *1.5;
     }
   
     // on fait une méthode applyBehaviors qui applique les comportements
@@ -59,7 +59,7 @@
   
       seekForce.mult(0.7);
       avoidForce.mult(2);
-      separateForce.mult(0.7);
+      separateForce.mult(1);
       //boudariesForce.mult(3);
   
       this.applyForce(seekForce);
@@ -68,7 +68,7 @@
       //this.applyForce(boudariesForce);
     }
   
-    avoid(obstacles, considereVehiculesCommeObstacles = false) {
+    avoid(obstacles, considereVehiculesCommeObstacles = false, vehicules = []) {
       // On calcule un point devant le véhicule courant
       // on l'appelle ahead
       let ahead = this.vel.copy();
@@ -352,7 +352,15 @@
     flee(target) {
       return this.seek(target).mult(-1);
     }
-  
+    fleeWithTargetRadiusV(target) {
+      const d = this.pos.dist(target);
+      if (d < target.r + 5) {
+        // je fuis la cible, on réutilise le comportement flee
+        const fleeForce = this.flee(target);
+        fleeForce.mult(100);
+        this.applyForce(fleeForce);
+      }
+    }
     /* Poursuite d'un point devant la target !
        cette methode renvoie la force à appliquer au véhicule
     */
